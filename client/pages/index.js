@@ -1,7 +1,7 @@
 import React from 'react';
 
-const HomePage = () => {
-  return <h1>Welcome to Next.js!</h1>;
+const Home = () => {
+  return <div>Welcome to Next.js!</div>;
 };
 
-export default HomePage;
+export default Home;

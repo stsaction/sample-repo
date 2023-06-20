@@ -1,11 +1,8 @@
-const express = require('express');
 
-const app = express();
-
-app.get('/', (req, res) => {
-  res.send('Hello from the server!');
-});
-
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+import { render, screen } from '@testing-library/react';
+import Home from '../pages/index';
+test('renders welcome message', () => {
+  render(<Home />);
+  const welcomeMessage = screen.getByText(/Welcome to Next.js/i);
+  expect(welcomeMessage).toBeInTheDocument();
 });

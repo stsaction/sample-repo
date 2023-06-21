@@ -34,5 +34,5 @@ jobs:
 
       - name: Build and test
         run: |
-          docker build -t my-app .
-          docker run my-app npm test
+          sudo docker build -t my-app .
+          sudo docker run my-app npm test

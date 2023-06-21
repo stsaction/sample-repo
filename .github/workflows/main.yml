@@ -44,6 +44,6 @@ jobs:
           NEXUS_REGISTRY: your-nexus-registry-url
           IMAGE_NAME: your-image-name
         run: |
-          echo ${{ secrets.NEXUS_PASSWORD }} | docker login -u ${{ secrets.NEXUS_USERNAME }} --password-stdin $NEXUS_REGISTRY
-          docker buildx create --use
+          echo ${{ secrets.NEXUS_PASSWORD }} | sudo docker login -u ${{ secrets.NEXUS_USERNAME }} --password-stdin $NEXUS_REGISTRY
+          sudo docker buildx create --use
           docker buildx build --push --platform linux --tag $NEXUS_REGISTRY/$IMAGE_NAME:latest .

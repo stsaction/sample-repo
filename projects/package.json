@@ -1,7 +1,7 @@
 {
   "name": "my-project",
   "version": "1.0.0",
-  "description": "Sample project with Jest testing",
+  "description": "Sample project with Jest testing and GitHub Actions",
   "scripts": {
     "test": "jest"
   },

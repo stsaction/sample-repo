@@ -4,10 +4,11 @@ on:
   push:
     branches:
       - main
+      - '!main'
   pull_request:
-    branches-ignore:
-      - main
-
+    types:
+      - opened
+      - synchronize
 jobs:
   build:
     runs-on: self-hosted

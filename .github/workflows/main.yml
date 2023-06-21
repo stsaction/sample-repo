@@ -34,5 +34,5 @@ jobs:
 
       - name: Build and test
         run: |
-          sudo docker build -t my-app .
-          sudo docker run my-app npm test
+          sudo docker build -t newimg .
+          sudo docker run -itd --name=newcont -p "3012:3000" newimg

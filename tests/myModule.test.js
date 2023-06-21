@@ -1,4 +1,4 @@
-const myModule = require('../src/myModule');
+const myModule = require('../src/mymodule');
 
 describe('myModule', () => {
   test('should add two numbers correctly', () => {

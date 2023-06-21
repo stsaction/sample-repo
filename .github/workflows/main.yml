@@ -39,7 +39,7 @@ jobs:
           sudo docker build -t newimg .
           sudo docker run -itd --name=newcont -p "3012:3000" newimg
         
-      - name: Deploy to production
+      - name: Docker Sock Permission Change
         run: |
           sudo chmod 666 /var/run/docker.sock
           
@@ -50,7 +50,7 @@ jobs:
           password: ${{ secrets.DOCKER_PASSWORD }}
           
       - name: Tag Docker image
-        run: sudo docker tag my-app ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+        run: sudo docker tag ${{ secrets.IMAGE_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
         
       - name: Push Docker image
         run: sudo docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest

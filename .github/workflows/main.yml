@@ -33,7 +33,7 @@ jobs:
         run: npm test
 
       - name: Deploy to production
-        if: github.ref == 'refs/heads/main'
+        if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
         run: |
           sudo docker rm -f newcont
           sudo docker rmi -f newimg

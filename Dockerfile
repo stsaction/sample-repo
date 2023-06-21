@@ -21,3 +21,4 @@ RUN npm run build
 
 # Set the command to start the app
 CMD ["npm", "start"]
+ 

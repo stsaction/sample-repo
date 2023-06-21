@@ -20,5 +20,5 @@ EXPOSE 3000
 RUN npm run build
 
 # Set the command to start the app
-CMD ["npm", "start"]
+CMD ["npm", "start"] 
  

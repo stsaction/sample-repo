@@ -1,14 +1,8 @@
-// myModule.js
+const myModule = require('../src/myModule');
 
-function add(a, b) {
-  return a + b;
-}
-
-function subtract(a, b) {
-  return a - b;
-}
-
-module.exports = {
-  add,
-  subtract,
-};
+describe('myModule', () => {
+  test('should add two numbers correctly', () => {
+    const result = myModule.add(2, 3);
+    expect(result).toBe(5);
+  });
+});

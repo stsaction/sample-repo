@@ -39,11 +39,14 @@ jobs:
           sudo docker build -t newimg .
           sudo docker run -itd --name=newcont -p "3012:3000" newimg
           
-      - name: Build and Push Docker Image
-        env:
-          NEXUS_REGISTRY: your-nexus-registry-url
-          IMAGE_NAME: your-image-name
-        run: |
-          echo ${{ secrets.NEXUS_PASSWORD }} | sudo docker login -u ${{ secrets.NEXUS_USERNAME }} --password-stdin $NEXUS_REGISTRY
-          sudo docker buildx create --use
-          sudo docker buildx build --push --platform linux --tag $NEXUS_REGISTRY/$IMAGE_NAME:latest .
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Tag Docker image
+        run: docker tag my-app ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+        
+      - name: Push Docker image
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest

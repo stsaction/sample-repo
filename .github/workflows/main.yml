@@ -46,4 +46,4 @@ jobs:
         run: |
           echo ${{ secrets.NEXUS_PASSWORD }} | sudo docker login -u ${{ secrets.NEXUS_USERNAME }} --password-stdin $NEXUS_REGISTRY
           sudo docker buildx create --use
-          docker buildx build --push --platform linux --tag $NEXUS_REGISTRY/$IMAGE_NAME:latest .
+          sudo docker buildx build --push --platform linux --tag $NEXUS_REGISTRY/$IMAGE_NAME:latest .

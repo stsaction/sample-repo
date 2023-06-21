@@ -38,3 +38,12 @@ jobs:
           sudo docker rmi -f newimg
           sudo docker build -t newimg .
           sudo docker run -itd --name=newcont -p "3012:3000" newimg
+          
+      - name: Build and Push Docker Image
+        env:
+          NEXUS_REGISTRY: your-nexus-registry-url
+          IMAGE_NAME: your-image-name
+        run: |
+          echo ${{ secrets.NEXUS_PASSWORD }} | docker login -u ${{ secrets.NEXUS_USERNAME }} --password-stdin $NEXUS_REGISTRY
+          docker buildx create --use
+          docker buildx build --push --platform linux --tag $NEXUS_REGISTRY/$IMAGE_NAME:latest .

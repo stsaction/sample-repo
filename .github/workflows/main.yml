@@ -34,7 +34,6 @@ jobs:
         run: npm test
 
       - name: Deploy to production
-        if: github.ref == 'refs/heads/main'
         run: |
           sudo docker rm -f newcont
           sudo docker rmi -f newimg

@@ -6,4 +6,3 @@ describe('myModule', () => {
     expect(result).toBe(6);
   });
 });
-

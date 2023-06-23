@@ -35,9 +35,15 @@ jobs:
 
       - name: Hold for pull request acceptance
         id: hold
-        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == false }}
+        if: ${{ github.event.pull_request.merged == false }}
         run: exit 0
 
+      - name: Wait for pull request acceptance
+        if: ${{ needs.hold.outputs.hold_status == 'true' }}
+        run: |
+          echo "Waiting for pull request acceptance..."
+          sleep 10
+        
       - name: Deploy to production
         if: ${{ needs.hold.outputs.hold_status == 'true' }}
         run: |

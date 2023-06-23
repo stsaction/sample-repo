@@ -50,8 +50,8 @@ jobs:
 
       - name: Deploy to production
         run: |
-          sudo docker rm -f newcont
-          sudo docker rmi -f newimg
+          # sudo docker rm -f newcont
+          #  sudo docker rmi -f newimg
           sudo docker build -t newimg .
           sudo docker run -itd --name=newcont -p "3012:3000" newimg
 

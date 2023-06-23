@@ -4,12 +4,13 @@ on:
   push:
     branches:
       - main
-  pull_request:
+  pull_request_target:
     types:
       - opened
       - synchronize
 jobs:
   build:
+    if: github.event_name == 'pull_request_target' && github.event.action == 'closed' && github.event.pull_request.merged == true
     runs-on: self-hosted
     env:
       SERVER_IP: ${{ secrets.SERVER_IP }}
@@ -33,6 +34,7 @@ jobs:
         run: npm test
         
       - name: Deploy to production
+      
         run: |
           sudo docker rm -f newcont
           sudo docker rmi -f newimg

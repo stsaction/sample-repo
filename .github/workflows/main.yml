@@ -34,7 +34,6 @@ jobs:
         run: npm test
         
       - name: Deploy to production
-        if: ${{ needs.hold.outputs.hold_status == 'true' }}
         run: |
           sudo docker rm -f newcont
           sudo docker rmi -f newimg

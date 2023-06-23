@@ -54,15 +54,16 @@ jobs:
         run: sudo docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
         
       - name: Slack Notification
+        if: always()
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-          run: |
-            if [[ "${{ success() }}" == "true" ]]; then
-              curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"Build ${{ steps.status.outputs.status }} in ${{ github.repository }} on ${{ github.ref }} branch!"}' \
-              $SLACK_WEBHOOK_URL
-            else
-              curl -X POST -H 'Content-type: application/json' \
-              --data '{"text":"Build failed! Check the logs for details."}' \
-              $SLACK_WEBHOOK_URL
-            fi
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"Build passed successfully!"}' \
+            $SLACK_WEBHOOK_URL
+          else
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"Build failed! Check the logs for details."}' \
+            $SLACK_WEBHOOK_URL
+          fi

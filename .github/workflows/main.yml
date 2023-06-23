@@ -8,6 +8,7 @@ on:
     types:
       - opened
       - synchronize
+      - closed
 jobs:
   build:
     runs-on: self-hosted
@@ -31,8 +32,10 @@ jobs:
 
       - name: Run tests
         run: npm test
+        
 
       - name: Deploy to production
+        if: ${{ github.event_name == 'pull_request' && github.event.pull_request.merged == true }}
         run: |
           sudo docker rm -f newcont
           sudo docker rmi -f newimg

@@ -60,7 +60,7 @@ jobs:
         run: |
           if [[ "${{ job.status }}" == "success" ]]; then
             curl -X POST -H 'Content-type: application/json' \
-            --data '{"text":"Build passed successfully!"}' \
+            --data '{"text":"Build ${{ steps.status.outputs.status }} in ${{ github.repository }} on ${{ github.ref }} branch!"}' \
             $SLACK_WEBHOOK_URL
           else
             curl -X POST -H 'Content-type: application/json' \

@@ -10,7 +10,6 @@ on:
       - synchronize
 jobs:
   build:
-    if: github.event_name == 'pull_request_target' && github.event.action == 'synchronize' && github.event.pull_request.merged == true
     runs-on: self-hosted
     env:
       SERVER_IP: ${{ secrets.SERVER_IP }}

@@ -6,9 +6,7 @@ on:
       - main
   pull_request:
     types:
-      - opened
       - synchronize
-      - closed
 jobs:
   build:
     runs-on: self-hosted

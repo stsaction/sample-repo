@@ -63,4 +63,4 @@ jobs:
             curl -X POST -H 'Content-type: application/json' \
             --data '{"text":"Build failed! Check the logs for details."}' \
             $SLACK_WEBHOOK_URL
-          f
+          fi

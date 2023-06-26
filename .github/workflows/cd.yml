@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: self-hosted
+    env:
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      SERVER_USERNAME: ${{ secrets.REMOTE_USERNAME }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+          
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+        
+      - name: Deploy to production   
+        run: |
+          sudo docker rm -f newcont
+          sudo docker rmi -f newimg
+          sudo docker build -t newimg .
+          sudo docker run -itd --name=newcont -p "3012:3000" newimg
+        
+
+          
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+          
+      - name: Tag Docker image
+        run: sudo docker tag ${{ secrets.IMAGE_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+        
+      - name: Push Docker image
+        run: sudo docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+        
+      - name: Slack Notification
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"Build ${{ steps.status.outputs.status }} in ${{ github.repository }} on ${{ github.ref }} branch!"}' \
+            $SLACK_WEBHOOK_URL
+          else
+            curl -X POST -H 'Content-type: application/json' \
+            --data '{"text":"Build failed! Check the logs for details."}' \
+            $SLACK_WEBHOOK_URL
+          f

@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  push:
+  pull_request:
     branches:
       - main
   workflow_dispatch:
@@ -16,6 +16,7 @@ on:
 
 jobs:
   test:
+    if: github.event_name == 'pull_request'
     runs-on: self-hosted
     steps:
       - name: Checkout code
@@ -33,6 +34,7 @@ jobs:
         run: npm test
 
   deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'pull_request'
     needs: test
     runs-on: self-hosted
     env:
@@ -86,34 +88,3 @@ jobs:
               --data '{"text":"Build failed! Check the logs for details."}' \
               $SLACK_WEBHOOK_URL
           fi
-          
-  trigger-job:
-     needs: []
-     runs-on: self-hosted
-     steps:
-      - name: Handle user input and trigger job
-        run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            case "${{ github.event.inputs.job }}" in
-              "test")
-                echo "Triggering 'test' job..."
-                echo "::set-output name=job-to-trigger::test"
-                ;;
-              "deploy")
-                echo "Triggering 'deploy' job..."
-                echo "::set-output name=job-to-trigger::deploy"
-                ;;
-              *)
-                echo "Invalid job selected."
-                exit 1
-                ;;
-            esac
-          else
-            echo "Job triggered automatically on push event."
-            echo "::set-output name=job-to-trigger::test"
-          fi
-      - name: Trigger selected job
-        run: |
-          selected_job="${{ needs.trigger-job.outputs.job-to-trigger }}"
-          echo "Selected job: $selected_job"
-          echo "::set-output name=selected-job::$selected_job"

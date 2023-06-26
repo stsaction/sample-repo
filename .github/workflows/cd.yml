@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  buildanddeploy:
     runs-on: self-hosted
     env:
       SERVER_IP: ${{ secrets.SERVER_IP }}

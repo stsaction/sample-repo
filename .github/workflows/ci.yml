@@ -4,20 +4,19 @@ on:
   push:
     branches:
       - main
-  pull_request_target:
-    types:
-      - opened
-      - synchronize
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Select the job to execute'
+        required: true
+        default: 'test'
+        options:
+          - test
+          - deploy
 
 jobs:
-  build:
+  test:
     runs-on: self-hosted
-    env:
-      SERVER_IP: ${{ secrets.SERVER_IP }}
-      SERVER_USERNAME: ${{ secrets.REMOTE_USERNAME }}
-      SERVER_PORT: ${{ secrets.SERVER_PORT }}
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -32,3 +31,89 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+  deploy:
+    needs: test
+    runs-on: self-hosted
+    env:
+      SERVER_IP: ${{ secrets.SERVER_IP }}
+      SERVER_USERNAME: ${{ secrets.REMOTE_USERNAME }}
+      SERVER_PORT: ${{ secrets.SERVER_PORT }}
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Deploy to production
+        run: |
+          sudo docker rm -f newcont
+          sudo docker rmi -f newimg
+          sudo docker build -t newimg .
+          sudo docker run -itd --name=newcont -p "3012:3000" newimg
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Tag Docker image
+        run: sudo docker tag ${{ secrets.IMAGE_NAME }} ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+
+      - name: Push Docker image
+        run: sudo docker push ${{ secrets.DOCKER_USERNAME }}/${{ secrets.IMAGE_NAME }}:latest
+
+      - name: Slack Notification
+        if: always()
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          if [[ "${{ job.status }}" == "success" ]]; then
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"Build ${{ steps.status.outputs.status }} in ${{ github.repository }} on ${{ github.ref }} branch!"}' \
+              $SLACK_WEBHOOK_URL
+          else
+            curl -X POST -H 'Content-type: application/json' \
+              --data '{"text":"Build failed! Check the logs for details."}' \
+              $SLACK_WEBHOOK_URL
+          fi
+          
+  trigger-job:
+     needs: []
+     runs-on: self-hosted
+     steps:
+      - name: Handle user input and trigger job
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            case "${{ github.event.inputs.job }}" in
+              "test")
+                echo "Triggering 'test' job..."
+                echo "::set-output name=job-to-trigger::test"
+                ;;
+              "deploy")
+                echo "Triggering 'deploy' job..."
+                echo "::set-output name=job-to-trigger::deploy"
+                ;;
+              *)
+                echo "Invalid job selected."
+                exit 1
+                ;;
+            esac
+          else
+            echo "Job triggered automatically on push event."
+            echo "::set-output name=job-to-trigger::test"
+          fi
+      - name: Trigger selected job
+        run: |
+          selected_job="${{ needs.trigger-job.outputs.job-to-trigger }}"
+          echo "Selected job: $selected_job"
+          echo "::set-output name=selected-job::$selected_job"
